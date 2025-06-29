@@ -1,0 +1,73 @@
+rules:
+
+### ======= STANDARD USAGE (INFO) =======
+
+- id: go-crypto-import
+  languages: [go]
+  pattern: import "crypto/"
+  message: "Use of Go crypto package (standard usage)"
+  severity: INFO
+  tags: [crypto, go, standard]
+
+- id: go-hash-functions
+  languages: [go]
+  patterns:
+    - pattern: md5.New()
+    - pattern: sha1.New()
+    - pattern: sha256.New()
+    - pattern: sha512.New()
+    - pattern: hmac.New
+  message: "Use of cryptographic hash function"
+  severity: INFO
+  tags: [crypto, hashing, go]
+
+- id: go-keygen-encrypt
+  languages: [go]
+  patterns:
+    - pattern: rsa.GenerateKey
+    - pattern: rsa.EncryptOAEP
+    - pattern: rsa.DecryptOAEP
+    - pattern: ecdsa.GenerateKey
+    - pattern: x509.MarshalPKIXPublicKey
+    - pattern: x509.ParsePKIXPublicKey
+  message: "Cryptographic key generation or encryption/decryption"
+  severity: INFO
+  tags: [crypto, encryption, go]
+
+### ======= INSECURE / CUSTOM USAGE =======
+
+- id: go-insecure-hash
+  languages: [go]
+  patterns:
+    - pattern: md5.New()
+    - pattern: sha1.New()
+  message: "Use of insecure cryptographic algorithm (MD5 or SHA1)"
+  severity: WARNING
+  tags: [crypto, insecure, go]
+
+- id: suspicious-custom-encryption
+  languages: [go]
+  pattern: |
+    func $FN($PARAMS) {
+      $BODY
+    }
+  message: "Function looks like custom cryptographic logic — avoid writing your own"
+  severity: HIGH
+  tags: [crypto, custom, suspicious]
+  metavariable-regex:
+    $FN: "(?i)(encrypt|decrypt|sign|verify|cipher|crypto)"
+
+
+- id: lowlevel-bit-crypto
+  languages: [go]
+  pattern: $X << $Y
+  message: "Bitwise operation possibly used in custom crypto logic"
+  severity: WARNING
+  tags: [crypto, custom, suspicious]
+
+#- id: custom-crypto-warning
+#  languages: [go]
+#  pattern: func $FN(...) { ... }
+#  message: "Function may be implementing custom crypto logic — avoid writing your own"
+#  severity: WARNING
+#  tags: [crypto, custom, caution]
